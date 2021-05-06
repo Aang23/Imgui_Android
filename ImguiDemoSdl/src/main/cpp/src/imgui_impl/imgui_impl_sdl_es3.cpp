@@ -377,7 +377,7 @@ bool    ImGui_ImplSdlGLES3_Init(SDL_Window* window)
     io.KeyMap[ImGuiKey_Y] = SDLK_y;
     io.KeyMap[ImGuiKey_Z] = SDLK_z;
 
-    io.RenderDrawListsFn = ImGui_ImplSdlGLES3_RenderDrawLists;   // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
+    //io.RenderDrawListsFn = ImGui_ImplSdlGLES3_RenderDrawLists;   // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
     io.SetClipboardTextFn = ImGui_ImplSdlGLES3_SetClipboardText;
     io.GetClipboardTextFn = ImGui_ImplSdlGLES3_GetClipboardText;
     io.ClipboardUserData = NULL;
@@ -440,7 +440,7 @@ bool    ImGui_ImplSdlGLES3_Init(SDL_Window* window)
 void ImGui_ImplSdlGLES3_Shutdown()
 {
     ImGui_ImplSdlGLES3_InvalidateDeviceObjects();
-    ImGui::Shutdown();
+    //ImGui::Shutdown();
 }
 
 void ImGui_ImplSdlGLES3_NewFrame(SDL_Window* window)

@@ -16,15 +16,17 @@
 #include <unistd.h>
 #include <dirent.h>
 
+#include "style.h"
+
 /**
  * A convenience function to create a context for the specified window
  * @param w Pointer to SDL_Window
  * @return An SDL_Context value
  */
 
-typedef bool(initImgui_t)(SDL_Window*);
-typedef bool(processEvent_t)(SDL_Event*);
-typedef void(newFrame_t)(SDL_Window*);
+typedef bool(initImgui_t)(SDL_Window *);
+typedef bool(processEvent_t)(SDL_Event *);
+typedef void(newFrame_t)(SDL_Window *);
 typedef void(shutdown_t)();
 
 static initImgui_t *initImgui;
@@ -66,22 +68,29 @@ static SDL_GLContext createCtx(SDL_Window *w)
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor);
 
-    SDL_GL_GetAttribute(SDL_GL_RED_SIZE,   &r);
+    SDL_GL_GetAttribute(SDL_GL_RED_SIZE, &r);
     SDL_GL_GetAttribute(SDL_GL_GREEN_SIZE, &g);
-    SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE,  &b);
+    SDL_GL_GetAttribute(SDL_GL_BLUE_SIZE, &b);
     SDL_GL_GetAttribute(SDL_GL_ALPHA_SIZE, &a);
 
     SDL_GL_GetAttribute(SDL_GL_DEPTH_SIZE, &depth);
 
-    const char* mask_desc;
+    const char *mask_desc;
 
-    if (mask & SDL_GL_CONTEXT_PROFILE_CORE) {
+    if (mask & SDL_GL_CONTEXT_PROFILE_CORE)
+    {
         mask_desc = "core";
-    } else if (mask & SDL_GL_CONTEXT_PROFILE_COMPATIBILITY) {
+    }
+    else if (mask & SDL_GL_CONTEXT_PROFILE_COMPATIBILITY)
+    {
         mask_desc = "compatibility";
-    } else if (mask & SDL_GL_CONTEXT_PROFILE_ES) {
+    }
+    else if (mask & SDL_GL_CONTEXT_PROFILE_ES)
+    {
         mask_desc = "es";
-    } else {
+    }
+    else
+    {
         mask_desc = "?";
     }
 
@@ -118,8 +127,7 @@ static SDL_GLContext createCtx(SDL_Window *w)
     return ctx;
 }
 
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
 
@@ -129,15 +137,22 @@ int main(int argc, char** argv)
         SDL_Quit();
         return 1;
     }
-    if (chdir(argv[1])) {
+    if (chdir(argv[1]))
+    {
         Log(LOG_ERROR) << "Could not change directory properly!";
-    } else {
+    }
+    else
+    {
         dirent **namelist;
         int numdirs = scandir(".", &namelist, NULL, alphasort);
-        if (numdirs < 0) {
+        if (numdirs < 0)
+        {
             Log(LOG_ERROR) << "Could not list directory";
-        } else {
-            for (int dirid = 0; dirid < numdirs; ++dirid) {
+        }
+        else
+        {
+            for (int dirid = 0; dirid < numdirs; ++dirid)
+            {
                 Log(LOG_INFO) << "Got file: " << namelist[dirid]->d_name;
             }
             free(namelist);
@@ -148,11 +163,12 @@ int main(int argc, char** argv)
     Log(LOG_INFO) << "Creating SDL_Window";
     SDL_Window *window = SDL_CreateWindow("Demo App", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 800, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_GLContext ctx = createCtx(window);
+    ImGui::CreateContext();
     initImgui(window);
 
     // Load Fonts
     // (there is a default font, this is only if you want to change it. see extra_fonts/README.txt for more details)
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO &io = ImGui::GetIO();
     //io.Fonts->AddFontDefault();
     //io.Fonts->AddFontFromFileTTF("../../extra_fonts/Cousine-Regular.ttf", 15.0f);
     //io.Fonts->AddFontFromFileTTF("../../extra_fonts/DroidSans.ttf", 16.0f);
@@ -173,10 +189,16 @@ int main(int argc, char** argv)
         teapot.init();
 
         int deltaX = 0, deltaY = 0;
-        int prevX , prevY;
+        int prevX, prevY;
         SDL_GetMouseState(&prevX, &prevY);
 
-        while (!done) {
+        int major;
+        SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
+
+        style::setDarkStyle(".");
+
+        while (!done)
+        {
             SDL_Event e;
 
             deltaX = 0;
@@ -184,41 +206,48 @@ int main(int argc, char** argv)
 
             float deltaZoom = 0.0f;
 
-            while (SDL_PollEvent(&e)) {
+            while (SDL_PollEvent(&e))
+            {
                 bool handledByImGui = processEvent(&e);
                 {
-                    switch (e.type) {
-                        case SDL_QUIT:
-                            done = true;
-                            break;
-                        case SDL_MOUSEBUTTONDOWN:
-                            prevX = e.button.x;
-                            prevY = e.button.y;
-                            break;
-                        case SDL_MOUSEMOTION:
-                            if (e.motion.state & SDL_BUTTON_LMASK) {
-                                deltaX += prevX - e.motion.x;
-                                deltaY += prevY - e.motion.y;
-                                prevX = e.motion.x;
-                                prevY = e.motion.y;
-                            }
-                            break;
-                        case SDL_MULTIGESTURE:
-                            if (e.mgesture.numFingers > 1) {
-                                deltaZoom += e.mgesture.dDist * 10.0f;
-                            }
-                            break;
-                        case SDL_MOUSEWHEEL:
-                            deltaZoom += e.wheel.y / 100.0f;
-                            break;
-                        default:
-                            break;
+                    switch (e.type)
+                    {
+                    case SDL_QUIT:
+                        done = true;
+                        break;
+                    case SDL_MOUSEBUTTONDOWN:
+                        prevX = e.button.x;
+                        prevY = e.button.y;
+                        break;
+                    case SDL_MOUSEMOTION:
+                        if (e.motion.state & SDL_BUTTON_LMASK)
+                        {
+                            deltaX += prevX - e.motion.x;
+                            deltaY += prevY - e.motion.y;
+                            prevX = e.motion.x;
+                            prevY = e.motion.y;
+                        }
+                        break;
+                    case SDL_MULTIGESTURE:
+                        if (e.mgesture.numFingers > 1)
+                        {
+                            deltaZoom += e.mgesture.dDist * 10.0f;
+                        }
+                        break;
+                    case SDL_MOUSEWHEEL:
+                        deltaZoom += e.wheel.y / 100.0f;
+                        break;
+                    default:
+                        break;
                     }
                 }
             }
-            if (io.WantTextInput) {
+            if (io.WantTextInput)
+            {
                 SDL_StartTextInput();
-            } else {
+            }
+            else
+            {
                 SDL_StopTextInput();
             }
             newFrame(window);
@@ -228,58 +257,51 @@ int main(int argc, char** argv)
                 static float f = 0.0f;
                 ImGui::Text("Hello, world!");
                 ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-                ImGui::ColorEdit3("clear color", (float *) &clear_color);
-                if (ImGui::Button("Test Window")) show_test_window ^= 1;
-                if (ImGui::Button("Another Window")) show_another_window ^= 1;
+                ImGui::ColorEdit3("clear color", (float *)&clear_color);
+                if (ImGui::Button("Test Window"))
+                    show_test_window ^= 1;
+                if (ImGui::Button("Another Window"))
+                    show_another_window ^= 1;
                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
                             ImGui::GetIO().Framerate);
             }
 
             // 2. Show another simple window, this time using an explicit Begin/End pair
-            if (show_another_window) {
-                ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiSetCond_FirstUseEver);
+            if (show_another_window)
+            {
+                ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
                 ImGui::Begin("Another Window", &show_another_window);
                 ImGui::Text("Hello");
                 ImGui::End();
             }
 
             // 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-            if (show_test_window) {
-                ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiSetCond_FirstUseEver);
-                ImGui::ShowTestWindow(&show_test_window);
-            }
-
-            // 4. Show some controls for the teapot
+            if (show_test_window)
             {
-                ImGui::Begin("Teapot controls");
-                ImGui::SliderFloat("Teapot rotation", &teapotRotation, 0, 2 * M_PI);
-                ImGui::Checkbox("Rotate synchronously", &rotateSync);
-                ImGui::Text("Zoom value: %f", teapot.zoomValue());
-                ImGui::End();
+                ImGui::SetNextWindowPos(ImVec2(650, 20), ImGuiCond_FirstUseEver);
+                ImGui::ShowDemoWindow(&show_test_window);
             }
 
+            ImGui::Render();
 
             // Rendering
-            glViewport(0, 0, (int) ImGui::GetIO().DisplaySize.x, (int) ImGui::GetIO().DisplaySize.y);
+            glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
             glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            teapot.rotateTo(teapotRotation);
-            if (rotateSync)
-                teapot.rotateCameraTo(teapotRotation);
+            glClearColor(0.0666f, 0.0666f, 0.0666f, 1.0f);
+            //glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
 
-            if (!ImGui::IsMouseHoveringAnyWindow())
-            {
-                if (std::abs(deltaZoom) > 0.001f)
-                    teapot.zoomBy(deltaZoom);
-                if ((deltaX != 0) || (deltaY != 0))
-                    teapot.rotateCameraBy(deltaX * 0.005f, deltaY * 0.005f);
-            }
-            teapot.draw();
-            ImGui::Render();
+            if (major == 3)
+                ImGui_ImplSdlGLES3_RenderDrawLists(ImGui::GetDrawData());
+            else
+                ImGui_ImplSdlGLES2_RenderDrawLists(ImGui::GetDrawData());
+
             SDL_GL_SwapWindow(window);
         }
     }
+    ImGui::DestroyContext();
     shutdown();
     SDL_GL_DeleteContext(ctx);
     SDL_Quit();

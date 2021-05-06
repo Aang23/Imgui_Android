@@ -39,6 +39,7 @@ file(GLOB IMGUI_FILES
 
 file(GLOB DEMO_FILES
     src/*.cpp
+    src/style.cpp
 )
 
 if (NOT ANDROID)
